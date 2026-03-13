@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>외식 신청</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f7;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .container {
+            background: white;
+            padding: 80px 60px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+        }
+
+        .dark-mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #f5f5f7;
+            border: 1px solid #d2d2d7;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5em;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .dark-mode-toggle:hover {
+            background: #e8e8ed;
+            transform: rotate(20deg);
+        }
+
+        body.dark-mode {
+            background: #1d1d1f;
+        }
+
+        body.dark-mode .container {
+            background: #2d2d2f;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        body.dark-mode h1,
+        body.dark-mode .menu-selection h2,
+        body.dark-mode .results-section h2,
+        body.dark-mode .results-list h3,
+        body.dark-mode .menu-stats h3 {
+            color: #f5f5f7;
+        }
+
+        body.dark-mode .message,
+        body.dark-mode .custom-input-container label {
+            color: #a1a1a6;
+        }
+
+        body.dark-mode .menu-option,
+        body.dark-mode .custom-input-container input,
+        body.dark-mode .summary-card,
+        body.dark-mode .result-item,
+        body.dark-mode .stat-item {
+            background: #3d3d3f;
+            border-color: #4d4d4f;
+            color: #f5f5f7;
+        }
+
+        body.dark-mode .accept-btn {
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        body.dark-mode .accept-btn:hover {
+            background: #e8e8ed;
+        }
+
+        body.dark-mode .reject-btn,
+        body.dark-mode .back-btn {
+            background: #3d3d3f;
+            color: #f5f5f7;
+            border-color: #4d4d4f;
+        }
+
+        body.dark-mode .dark-mode-toggle {
+            background: #3d3d3f;
+            border-color: #4d4d4f;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #1d1d1f;
+            margin-bottom: 50px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .message {
+            font-size: 1.3em;
+            color: #6e6e73;
+            margin-bottom: 60px;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+
+        .buttons {
+            max-width: 400px;
+            margin: 0 auto;
+            position: relative;
+            min-height: 180px;
+        }
+
+        button {
+            padding: 18px 40px;
+            font-size: 1.1em;
+            font-weight: 500;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .buttons button {
+            width: 100%;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 400px;
+        }
+
+        .accept-btn {
+            background: #000;
+            color: white;
+            top: 0;
+        }
+
+        .accept-btn:hover {
+            background: #333;
+            transform: translateX(-50%) translateY(-2px);
+        }
+
+        .reject-btn {
+            background: #f5f5f7;
+            color: #1d1d1f;
+            border: 1px solid #d2d2d7;
+            top: 70px;
+            z-index: 1000;
+        }
+
+        .reject-btn:hover {
+            background: #e8e8ed;
+        }
+
+        .reject-btn.running {
+            position: fixed;
+            transition: all 0.3s ease;
+            max-width: 300px;
+        }
+
+        .success-message {
+            display: none;
+            font-size: 1.8em;
+            color: #1d1d1f;
+            font-weight: 600;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .menu-selection {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .menu-selection h2 {
+            font-size: 1.8em;
+            color: #1d1d1f;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .menu-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .menu-option {
+            padding: 16px 20px;
+            background: #f5f5f7;
+            border: 2px solid #d2d2d7;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+
+        .menu-option:hover {
+            background: #e8e8ed;
+            border-color: #000;
+        }
+
+        .menu-option.selected {
+            background: #000;
+            color: white;
+            border-color: #000;
+        }
+
+        .custom-input-container {
+            margin-top: 20px;
+        }
+
+        .custom-input-container label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            font-size: 1em;
+            color: #6e6e73;
+            font-weight: 500;
+        }
+
+        .custom-input-container input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 1em;
+            transition: all 0.2s ease;
+        }
+
+        .custom-input-container input:focus {
+            outline: none;
+            border-color: #000;
+        }
+
+        .submit-btn {
+            margin-top: 30px;
+            padding: 18px 40px;
+            background: #000;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            background: #333;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            background: #d2d2d7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .final-message {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .final-message h2 {
+            font-size: 1.8em;
+            color: #1d1d1f;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .final-message p {
+            font-size: 1.2em;
+            color: #6e6e73;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .view-results-btn {
+            margin-top: 20px;
+            padding: 16px 36px;
+            background: #000;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .view-results-btn:hover {
+            background: #333;
+            transform: translateY(-2px);
+        }
+
+        .results-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+            text-align: left;
+        }
+
+        .results-section h2 {
+            font-size: 1.8em;
+            color: #1d1d1f;
+            margin-bottom: 30px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: #f5f5f7;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .summary-card .number {
+            font-size: 2em;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 5px;
+        }
+
+        .summary-card .label {
+            font-size: 0.9em;
+            color: #6e6e73;
+            font-weight: 500;
+        }
+
+        .results-list {
+            margin-top: 30px;
+        }
+
+        .results-list h3 {
+            font-size: 1.3em;
+            color: #1d1d1f;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .result-item {
+            background: #f5f5f7;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-item .info {
+            flex: 1;
+        }
+
+        .result-item .name {
+            font-weight: 600;
+            color: #1d1d1f;
+            font-size: 1.1em;
+            margin-bottom: 4px;
+        }
+
+        .result-item .menu {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #000;
+            color: white;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 500;
+            margin-right: 8px;
+        }
+
+        .result-item .time {
+            font-size: 0.85em;
+            color: #6e6e73;
+        }
+
+        .menu-stats {
+            margin-top: 30px;
+        }
+
+        .menu-stats h3 {
+            font-size: 1.3em;
+            color: #1d1d1f;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .stat-item {
+            background: #f5f5f7;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-item .menu-name {
+            font-weight: 600;
+            color: #1d1d1f;
+            font-size: 1.1em;
+        }
+
+        .stat-item .count {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #000;
+        }
+
+        .back-btn {
+            margin-top: 30px;
+            padding: 16px 36px;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: #e8e8ed;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000;
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1em;
+            z-index: 2000;
+            animation: slideDown 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .progress-bar-container {
+            margin: 20px 0;
+            background: #e8e8ed;
+            border-radius: 12px;
+            height: 12px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #000, #333);
+            transition: width 0.5s ease;
+            border-radius: 12px;
+        }
+
+        .response-count {
+            font-size: 0.9em;
+            color: #6e6e73;
+            margin-top: 8px;
+        }
+
+        .emoji-reactions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+
+        .emoji-reaction {
+            padding: 6px 12px;
+            background: #f5f5f7;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #d2d2d7;
+        }
+
+        .emoji-reaction:hover {
+            background: #e8e8ed;
+            transform: scale(1.1);
+        }
+
+        .emoji-reaction.selected {
+            background: #000;
+            color: white;
+            border-color: #000;
+        }
+
+        body.dark-mode .emoji-reaction {
+            background: #3d3d3f;
+            border-color: #4d4d4f;
+            color: #f5f5f7;
+        }
+
+        body.dark-mode .emoji-reaction.selected {
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .new-response {
+            animation: highlight 2s ease;
+        }
+
+        @keyframes highlight {
+            0%, 100% {
+                background: #f5f5f7;
+            }
+            50% {
+                background: #ffd60a;
+            }
+        }
+
+        .total-target {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #6e6e73;
+        }
+
+        .quick-view-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #000;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5em;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: none;
+        }
+
+        .quick-view-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .quick-view-btn.show {
+            display: block;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hearts {
+            position: fixed;
+            pointer-events: none;
+            font-size: 2em;
+            animation: float 3s ease-in-out;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-1000px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 60px 30px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .message {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="quick-view-btn" id="quickViewBtn" onclick="quickViewResults()">📊</button>
+    
+    <div class="container">
+        <div class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</div>
+        
+        <h1>외식 신청</h1>
+        <div class="message" id="initialMessage">
+            오늘 저녁 같이 맛있는 거 먹으러 갈래요?
+        </div>
+        
+        <div class="buttons" id="buttonsContainer">
+            <button class="accept-btn" onclick="acceptInvitation()">수락하기</button>
+            <button class="reject-btn" id="rejectBtn">거절하기</button>
+        </div>
+
+        <div class="menu-selection" id="menuSelection">
+            <h2>어떤 메뉴가 좋으세요?</h2>
+            <div class="custom-input-container">
+                <label for="userName">이름</label>
+                <input type="text" id="userName" placeholder="이름을 입력하세요">
+            </div>
+            <div class="menu-options">
+                <div class="menu-option" onclick="selectMenu(this, '태후')">
+                    태후
+                    <div class="emoji-reactions">
+                        <span class="emoji-reaction" onclick="addReaction(event, 'like')">👍</span>
+                        <span class="emoji-reaction" onclick="addReaction(event, 'love')">❤️</span>
+                        <span class="emoji-reaction" onclick="addReaction(event, 'fire')">🔥</span>
+                    </div>
+                </div>
+                <div class="menu-option" onclick="selectMenu(this, '롯데리아')">
+                    롯데리아
+                    <div class="emoji-reactions">
+                        <span class="emoji-reaction" onclick="addReaction(event, 'like')">👍</span>
+                        <span class="emoji-reaction" onclick="addReaction(event, 'love')">❤️</span>
+                        <span class="emoji-reaction" onclick="addReaction(event, 'fire')">🔥</span>
+                    </div>
+                </div>
+                <div class="menu-option" onclick="selectMenu(this, '사노라멘')">
+                    사노라멘
+                    <div class="emoji-reactions">
+                        <span class="emoji-reaction" onclick="addReaction(event, 'like')">👍</span>
+                        <span class="emoji-reaction" onclick="addReaction(event, 'love')">❤️</span>
+                        <span class="emoji-reaction" onclick="addReaction(event, 'fire')">🔥</span>
+                    </div>
+                </div>
+                <div class="menu-option" onclick="selectMenu(this, '양꼬치')">
+                    양꼬치
+                    <div class="emoji-reactions">
+                        <span class="emoji-reaction" onclick="addReaction(event, 'like')">👍</span>
+                        <span class="emoji-reaction" onclick="addReaction(event, 'love')">❤️</span>
+                        <span class="emoji-reaction" onclick="addReaction(event, 'fire')">🔥</span>
+                    </div>
+                </div>
+            </div>
+            <div class="custom-input-container">
+                <label for="customMenu">또는 희망하는 곳을 입력해주세요</label>
+                <input type="text" id="customMenu" placeholder="예: 이탈리안 레스토랑">
+            </div>
+            <button class="submit-btn" id="submitBtn" onclick="submitMenu()">선택 완료</button>
+        </div>
+
+        <div class="final-message" id="finalMessage">
+            <h2>최고의 선택이에요! 🎉</h2>
+            <p id="selectedMenuText"></p>
+            <button class="view-results-btn" onclick="showResults()">모두의 선택 보기</button>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <h2>모두의 메뉴 선택 결과 📊</h2>
+            
+            <div class="total-target">
+                목표: 10명 참여
+            </div>
+            
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+            <div class="response-count" id="responseCount">0명이 응답했습니다</div>
+            
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="number" id="totalCount">0</div>
+                    <div class="label">총 응답 수</div>
+                </div>
+                <div class="summary-card">
+                    <div class="number" id="menuCount">0</div>
+                    <div class="label">메뉴 종류</div>
+                </div>
+            </div>
+
+            <div class="menu-stats">
+                <h3>인기 메뉴</h3>
+                <div id="statsContainer"></div>
+            </div>
+
+            <div class="results-list">
+                <h3>응답 목록</h3>
+                <div id="resultsContainer"></div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="back-btn" onclick="backToMain()" style="flex: 1;">처음으로 돌아가기</button>
+                <button class="back-btn" onclick="resetAll()" style="flex: 1; background: #ff3b30; color: white; border: none;">🗑️ 전체 초기화</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let rejectBtn = document.getElementById('rejectBtn');
+        let buttonsContainer = document.getElementById('buttonsContainer');
+        let isRunningAway = false;
+        let selectedMenuName = '';
+        let lastResponseCount = 0;
+
+        // 다크모드 로드
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('.dark-mode-toggle').textContent = '☀️';
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            document.querySelector('.dark-mode-toggle').textContent = isDark ? '☀️' : '🌙';
+            localStorage.setItem('darkMode', isDark);
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideDown 0.3s ease reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function addReaction(event, type) {
+            event.stopPropagation();
+            const button = event.target;
+            button.classList.toggle('selected');
+            
+            // 리액션 저장 (선택사항)
+            const reactions = JSON.parse(localStorage.getItem('menuReactions') || '{}');
+            const menu = button.closest('.menu-option').textContent.trim().split('\n')[0];
+            
+            if (!reactions[menu]) reactions[menu] = { like: 0, love: 0, fire: 0 };
+            
+            if (button.classList.contains('selected')) {
+                reactions[menu][type]++;
+            } else {
+                reactions[menu][type] = Math.max(0, reactions[menu][type] - 1);
+            }
+            
+            localStorage.setItem('menuReactions', JSON.stringify(reactions));
+        }
+
+        function checkForNewResponses() {
+            const responses = JSON.parse(localStorage.getItem('menuResponses') || '[]');
+            const currentCount = responses.length;
+            
+            if (currentCount > lastResponseCount && lastResponseCount > 0) {
+                const newResponse = responses[responses.length - 1];
+                showNotification(`🎉 ${newResponse.name}님이 ${newResponse.menu}를 선택했습니다!`);
+                
+                // 퀵뷰 버튼 표시
+                const quickViewBtn = document.getElementById('quickViewBtn');
+                if (quickViewBtn && !document.getElementById('resultsSection').style.display === 'block') {
+                    quickViewBtn.classList.add('show');
+                }
+            }
+            
+            lastResponseCount = currentCount;
+        }
+
+        // 3초마다 새로운 응답 확인
+        setInterval(checkForNewResponses, 3000);
+
+        function quickViewResults() {
+            if (document.getElementById('resultsSection').style.display === 'block') {
+                return;
+            }
+            
+            document.getElementById('initialMessage').style.display = 'none';
+            document.getElementById('buttonsContainer').style.display = 'none';
+            document.getElementById('menuSelection').style.display = 'none';
+            document.getElementById('finalMessage').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('quickViewBtn').classList.remove('show');
+            
+            loadResults();
+        }
+
+        function runAway(event) {
+            if (isRunningAway) return;
+            isRunningAway = true;
+
+            rejectBtn.classList.add('running');
+
+            const btnWidth = rejectBtn.offsetWidth;
+            const btnHeight = rejectBtn.offsetHeight;
+            
+            const maxX = window.innerWidth - btnWidth - 40;
+            const maxY = window.innerHeight - btnHeight - 40;
+
+            const randomX = Math.random() * maxX + 20;
+            const randomY = Math.random() * maxY + 20;
+
+            rejectBtn.style.left = randomX + 'px';
+            rejectBtn.style.top = randomY + 'px';
+            rejectBtn.style.transform = 'none';
+
+            setTimeout(() => {
+                isRunningAway = false;
+            }, 300);
+        }
+
+        rejectBtn.addEventListener('mouseenter', runAway);
+        rejectBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            runAway();
+        });
+
+        rejectBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            runAway();
+        });
+
+        function acceptInvitation() {
+            document.getElementById('initialMessage').style.display = 'none';
+            buttonsContainer.style.display = 'none';
+            document.getElementById('menuSelection').style.display = 'block';
+        }
+
+        function selectMenu(element, menuName) {
+            const allOptions = document.querySelectorAll('.menu-option');
+            allOptions.forEach(option => option.classList.remove('selected'));
+            
+            element.classList.add('selected');
+            selectedMenuName = menuName;
+            
+            document.getElementById('customMenu').value = '';
+        }
+
+        function submitMenu() {
+            const userName = document.getElementById('userName').value.trim();
+            const customMenu = document.getElementById('customMenu').value.trim();
+            
+            if (!userName) {
+                alert('이름을 입력해주세요!');
+                return;
+            }
+            
+            if (customMenu) {
+                selectedMenuName = customMenu;
+            }
+            
+            if (!selectedMenuName) {
+                alert('메뉴를 선택하거나 입력해주세요!');
+                return;
+            }
+
+            // 로컬 스토리지에 저장
+            let responses = JSON.parse(localStorage.getItem('menuResponses') || '[]');
+            
+            // 같은 이름이 있으면 수정, 없으면 추가
+            const existingIndex = responses.findIndex(r => r.name === userName);
+            const responseData = {
+                name: userName,
+                menu: selectedMenuName,
+                timestamp: new Date().toLocaleString('ko-KR')
+            };
+            
+            if (existingIndex !== -1) {
+                responses[existingIndex] = responseData;
+                showNotification(`${userName}님의 선택이 수정되었습니다!`);
+            } else {
+                responses.push(responseData);
+                showNotification(`${userName}님의 선택이 저장되었습니다!`);
+            }
+            
+            localStorage.setItem('menuResponses', JSON.stringify(responses));
+
+            document.getElementById('menuSelection').style.display = 'none';
+            document.getElementById('finalMessage').style.display = 'block';
+            document.getElementById('selectedMenuText').textContent = `${selectedMenuName} 너무 좋아요! 곧 연락드릴게요! 💖`;
+
+            createHearts();
+            document.body.style.background = '#e8f5e9';
+            
+            // 퀵뷰 버튼 표시
+            setTimeout(() => {
+                document.getElementById('quickViewBtn').classList.add('show');
+            }, 2000);
+        }
+
+        document.getElementById('customMenu').addEventListener('input', function() {
+            if (this.value.trim()) {
+                const allOptions = document.querySelectorAll('.menu-option');
+                allOptions.forEach(option => option.classList.remove('selected'));
+                selectedMenuName = '';
+            }
+        });
+
+        function showResults() {
+            document.getElementById('finalMessage').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('quickViewBtn').classList.remove('show');
+            loadResults();
+            
+            // 결과 화면에서 실시간 업데이트 시작
+            startAutoRefresh();
+        }
+
+        let autoRefreshInterval;
+        
+        function startAutoRefresh() {
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            autoRefreshInterval = setInterval(() => {
+                if (document.getElementById('resultsSection').style.display === 'block') {
+                    loadResults();
+                }
+            }, 5000);
+        }
+
+        function loadResults() {
+            const responses = JSON.parse(localStorage.getItem('menuResponses') || '[]');
+            
+            // 총 응답 수
+            const totalCount = responses.length;
+            document.getElementById('totalCount').textContent = totalCount;
+            
+            // 진행률 업데이트
+            const targetCount = 10;
+            const progress = Math.min((totalCount / targetCount) * 100, 100);
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('responseCount').textContent = `${totalCount}명이 응답했습니다 (목표: ${targetCount}명)`;
+
+            // 메뉴별 통계
+            const menuStats = {};
+            responses.forEach(response => {
+                menuStats[response.menu] = (menuStats[response.menu] || 0) + 1;
+            });
+
+            document.getElementById('menuCount').textContent = Object.keys(menuStats).length;
+
+            // 인기 메뉴 표시 (정렬)
+            const statsContainer = document.getElementById('statsContainer');
+            statsContainer.innerHTML = '';
+            
+            const sortedStats = Object.entries(menuStats).sort((a, b) => b[1] - a[1]);
+            
+            if (sortedStats.length === 0) {
+                statsContainer.innerHTML = '<div style="text-align: center; color: #6e6e73; padding: 20px;">아직 데이터가 없습니다.</div>';
+            } else {
+                sortedStats.forEach(([menu, count], index) => {
+                    const statItem = document.createElement('div');
+                    statItem.className = 'stat-item';
+                    const medal = index === 0 ? '🥇 ' : index === 1 ? '🥈 ' : index === 2 ? '🥉 ' : '';
+                    statItem.innerHTML = `
+                        <span class="menu-name">${medal}${menu}</span>
+                        <span class="count">${count}명</span>
+                    `;
+                    statsContainer.appendChild(statItem);
+                });
+            }
+
+            // 응답 목록 표시 (최신순)
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = '';
+
+            if (responses.length === 0) {
+                resultsContainer.innerHTML = '<div style="text-align: center; color: #6e6e73; padding: 20px;">아직 응답이 없습니다.</div>';
+            } else {
+                responses.slice().reverse().forEach((response, index) => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item';
+                    if (index === 0) resultItem.classList.add('new-response');
+                    
+                    resultItem.innerHTML = `
+                        <div class="info">
+                            <div class="name">${response.name}</div>
+                            <div>
+                                <span class="menu">${response.menu}</span>
+                                <span class="time">${response.timestamp}</span>
+                            </div>
+                        </div>
+                    `;
+                    resultsContainer.appendChild(resultItem);
+                });
+            }
+            
+            lastResponseCount = totalCount;
+        }
+
+        function backToMain() {
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            location.reload();
+        }
+
+        function resetAll() {
+            const password = prompt('초기화하려면 비밀번호를 입력하세요:');
+            
+            // 간단한 비밀번호 (원하는 비밀번호로 변경 가능)
+            if (password === '1234') {
+                if (confirm('⚠️ 정말로 모든 응답 데이터를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다!')) {
+                    localStorage.removeItem('menuResponses');
+                    localStorage.removeItem('menuReactions');
+                    showNotification('✅ 모든 데이터가 초기화되었습니다');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                }
+            } else if (password !== null) {
+                alert('❌ 비밀번호가 올바르지 않습니다');
+            }
+        }
+
+        function createHearts() {
+            const heartEmojis = ['💖', '💕', '💗', '💝', '💘', '❤️', '🎉', '✨'];
+            
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    let heart = document.createElement('div');
+                    heart.className = 'hearts';
+                    heart.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+                    heart.style.left = Math.random() * window.innerWidth + 'px';
+                    heart.style.bottom = '0px';
+                    document.body.appendChild(heart);
+
+                    setTimeout(() => heart.remove(), 3000);
+                }, i * 100);
+            }
+        }
+    </script>
+</body>
+</html>
